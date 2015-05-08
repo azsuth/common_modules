@@ -6,11 +6,20 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin">
 
+    <TextView
+        android:id="@+id/appcache_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:text="AppCache:"
+        android:textSize="20sp" />
+
     <EditText
         android:id="@+id/cache_field"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true" />
+        android:layout_below="@id/appcache_label" />
 
     <Button
         android:id="@+id/write_cache_button"
@@ -35,4 +44,21 @@
         android:layout_alignParentRight="true"
         android:layout_below="@+id/cache_field"
         android:text="Clear" />
+
+    <TextView
+        android:id="@+id/vjr_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/clear_cache_button"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:text="VolleyJacksonRequest:"
+        android:textSize="20sp" />
+
+    <Button
+        android:id="@+id/time_and_date_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/vjr_label"
+        android:text="Time &amp; Date" />
 </RelativeLayout>

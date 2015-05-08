@@ -1,1 +1,1 @@
-include ':app', ':appcache'
+include ':app', ':appcache', ':volleyjacksonrequest'

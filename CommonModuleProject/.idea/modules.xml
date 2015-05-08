@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/CommonModuleProject.iml" filepath="$PROJECT_DIR$/CommonModuleProject.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/appcache/appcache.iml" filepath="$PROJECT_DIR$/appcache/appcache.iml" />
+      <module fileurl="file://$PROJECT_DIR$/volleyjacksonrequest/volleyjacksonrequest.iml" filepath="$PROJECT_DIR$/volleyjacksonrequest/volleyjacksonrequest.iml" />
     </modules>
   </component>
 </project>
