@@ -27,30 +27,38 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/cache_field"
-        android:text="Write" />
+        android:text="Write Text" />
 
     <Button
         android:id="@+id/read_cache_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
         android:layout_below="@+id/cache_field"
-        android:layout_centerHorizontal="true"
-        android:text="Read" />
+        android:text="Read Text" />
 
     <Button
-        android:id="@+id/clear_cache_button"
+        android:id="@+id/write_int_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/read_cache_button"
+        android:text="Write Random Int" />
+
+    <Button
+        android:id="@+id/read_int_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/cache_field"
-        android:text="Clear" />
+        android:layout_below="@id/read_cache_button"
+        android:text="Read Random Int" />
 
     <TextView
         android:id="@+id/vjr_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@id/clear_cache_button"
+        android:layout_below="@id/write_int_button"
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:text="VolleyJacksonRequest:"
         android:textSize="20sp" />

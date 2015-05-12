@@ -17,19 +17,21 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 import com.azsuth.AppCache;
-import com.azsuth.AppCacheTypeReference;
 import com.azsuth.commonmoduleproject.model.TimeAndDate;
 import com.azsuth.volleyjacksonrequest.VJRequest;
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import java.util.Random;
+
 
 public class MainActivity extends Activity {
     private static final String APP_CACHE_FIELD_KEY = "APP_CACHE_FIELD_KEY";
+    private static final String APP_CACHE_INT_KEY = "APP_CACHE_INT_KEY";
 
     private RequestQueue requestQueue;
 
     private EditText cacheField;
-    private Button writeCacheButton, readCacheButton, clearCacheButton;
+    private Button writeCacheButton, readCacheButton, writeIntButton, readIntButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,28 +42,13 @@ public class MainActivity extends Activity {
         cacheField = (EditText) findViewById(R.id.cache_field);
         writeCacheButton = (Button) findViewById(R.id.write_cache_button);
         readCacheButton = (Button) findViewById(R.id.read_cache_button);
-        clearCacheButton = (Button) findViewById(R.id.clear_cache_button);
+        writeIntButton = (Button) findViewById(R.id.write_int_button);
+        readIntButton = (Button) findViewById(R.id.read_int_button);
 
         writeCacheButton.setOnClickListener(cacheClickListener);
         readCacheButton.setOnClickListener(cacheClickListener);
-        clearCacheButton.setOnClickListener(cacheClickListener);
-
-        cacheField.addTextChangedListener(new TextWatcherAdapter() {
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s == null || s.length() == 0) {
-                    writeCacheButton.setEnabled(false);
-                } else {
-                    writeCacheButton.setEnabled(true);
-                }
-            }
-
-        });
-
-        writeCacheButton.setEnabled(false);
-        readCacheButton.setEnabled(false);
-        clearCacheButton.setEnabled(false);
+        writeIntButton.setOnClickListener(cacheClickListener);
+        readIntButton.setOnClickListener(cacheClickListener);
 
         // init vjr
         requestQueue = Volley.newRequestQueue(this);
@@ -83,23 +70,28 @@ public class MainActivity extends Activity {
                     AppCache.INSTANCE.put(APP_CACHE_FIELD_KEY, newCacheValue);
 
                     cacheField.setText(null);
-
-                    readCacheButton.setEnabled(true);
-                    clearCacheButton.setEnabled(true);
                     break;
                 case R.id.read_cache_button:
-                    String cacheValue = AppCache.INSTANCE.get(APP_CACHE_FIELD_KEY, new AppCacheTypeReference<String>() {
-                    });
+                    if (AppCache.INSTANCE.has(APP_CACHE_FIELD_KEY)) {
+                        String cacheValue = AppCache.INSTANCE.get(APP_CACHE_FIELD_KEY, new AppCache.TypeReference<String>() {
+                        });
 
-                    cacheField.setText(cacheValue);
+                        cacheField.setText(cacheValue);
+                    } else {
+                        Toast.makeText(MainActivity.this, "No stored value", Toast.LENGTH_SHORT).show();
+                    }
                     break;
-                case R.id.clear_cache_button:
-                    AppCache.INSTANCE.remove(APP_CACHE_FIELD_KEY);
+                case R.id.write_int_button:
+                    AppCache.INSTANCE.put(APP_CACHE_INT_KEY, new Random().nextInt(100));
+                    break;
+                case R.id.read_int_button:
+                    if (AppCache.INSTANCE.has(APP_CACHE_INT_KEY)) {
+                        Integer cacheInt = AppCache.INSTANCE.get(APP_CACHE_INT_KEY, AppCache.INTEGER_TYPE_REFERENCE);
 
-                    cacheField.setText(null);
-
-                    readCacheButton.setEnabled(false);
-                    clearCacheButton.setEnabled(false);
+                        Toast.makeText(MainActivity.this, String.valueOf(cacheInt), Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(MainActivity.this, "No stored int", Toast.LENGTH_SHORT).show();
+                    }
                     break;
             }
 
@@ -114,11 +106,12 @@ public class MainActivity extends Activity {
         public void onClick(View view) {
             switch (view.getId()) {
                 case R.id.time_and_date_button:
-                    VJRequest<TimeAndDate> timeAndDateRequest = new VJRequest<TimeAndDate>(Request.Method.GET, "http://date.jsontest.com", new TypeReference<TimeAndDate>() {
+                    VJRequest<TimeAndDate> timeAndDateRequest = new VJRequest<>(Request.Method.GET, "http://date.jsontest.com", new TypeReference<TimeAndDate>() {
                     }, new Response.Listener<TimeAndDate>() {
 
                         @Override
                         public void onResponse(TimeAndDate response) {
+                            AppCache.INSTANCE.put("test", response);
                             Toast.makeText(MainActivity.this, String.format("Currently: %s %s", response.date, response.time), Toast.LENGTH_SHORT).show();
                         }
 
