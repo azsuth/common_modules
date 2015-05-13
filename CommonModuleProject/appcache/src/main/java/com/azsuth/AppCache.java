@@ -7,7 +7,8 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 
 /**
- * Global singleton app cache.
+ * Global singleton app cache. Can be broken into any number of instances by defining
+ * new enum values, i.e. AppCache.NETWORK_RESULTS, AppCache.USER_INPUT, AppCache.TEST_INSTANCE, etc...
  */
 public enum AppCache {
     INSTANCE;
@@ -28,6 +29,10 @@ public enum AppCache {
      * Common TypeReference representing a Long
      */
     public static final TypeReference<Long> LONG_TYPE_REFERENCE = new TypeReference<Long>(new Class[]{long.class}, -1L) {};
+    /**
+     * Common TypeReference representing a String
+     */
+    public static final TypeReference<String> STRING_TYPE_REFERENCE = new TypeReference<String>() {};
 
     private HashMap<String, Object> appCache;
 
@@ -49,13 +54,13 @@ public enum AppCache {
     }
 
     /**
-     * Returns a cached value, or null if one doesn't exist for the given key.
+     * Type safe cache accessor.  Returns a cached value, or null if one doesn't exist for the given key.
      * If the TypeReference type doesn't match the value type for the given key, returns null.
      *
      * @param key String
      * @param typeReference representing expected value
      * @param <T>
-     * @return object if one exists and matches TypeReference, null otherwise
+     * @return casted Object if one exists and matches TypeReference, null otherwise
      */
     public <T> T get(String key, TypeReference<T> typeReference) {
         if (appCache.containsKey(key)) {
@@ -68,8 +73,27 @@ public enum AppCache {
                     return null;
                 }
             } catch (Exception e) {
-                return null;
+                throw new RuntimeException(String.format("AppCache reflection error for key %s. Make sure expected Object constructor is reflected in TypeReference arguments.", key), e);
             }
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Type unsafe cache accessor.  Returns a cached value, or null if one doesn't exist for the
+     * given key.  Calling code is responsible for casting returned Object, which could throw
+     * a ClassCastException and will result in many unchecked cast warnings.
+     *
+     * It is recommended that <code>get(String key, TypeReference typeReference></code> is used for
+     * code cleanliness.
+     *
+     * @param key
+     * @return Object if one exists, null otherwise
+     */
+    public Object get(String key) {
+        if (appCache.containsKey(key)) {
+            return appCache.get(key);
         } else {
             return null;
         }
@@ -140,9 +164,10 @@ public enum AppCache {
 
         /**
          * Constructs a new Object of the parameterized type.
+         * Uses supplied argTypes to get proper constructor, and supplied args to call
+         * that constructor.
          *
-         *
-         * @return
+         * @return instance of the parameterized type
          * @throws NoSuchMethodException
          * @throws IllegalAccessException
          * @throws InvocationTargetException
