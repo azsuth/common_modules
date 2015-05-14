@@ -41,22 +41,23 @@ public class AppCacheTest {
 
     @Test
     public void testGetNoArgumentConstructor() {
-        AppCache.INSTANCE.put("test", "test");
-        String value = AppCache.INSTANCE.get("test", new AppCache.TypeReference<String>() {
+        AppCache.INSTANCE.put("test", new TestNoArgumentConstructor());
+        TestNoArgumentConstructor value = AppCache.INSTANCE.get("test", new AppCache.TypeReference<TestNoArgumentConstructor>() {
         });
 
-        assertEquals(value, "test");
+        assertEquals(value.testString, "test");
+        assertEquals(value.testInt, 42);
     }
 
     @Test
     public void testGetArgumentConstructor() {
-        TestArgumentConstructor test = new TestArgumentConstructor("test", 56);
+        TestArgumentConstructor test = new TestArgumentConstructor("test", 42);
         AppCache.INSTANCE.put("test", test);
 
-        TestArgumentConstructor test1 = AppCache.INSTANCE.get("test", new AppCache.TypeReference<TestArgumentConstructor>(new Class[]{String.class, int.class}, "", -1) {
+        TestArgumentConstructor value = AppCache.INSTANCE.get("test", new AppCache.TypeReference<TestArgumentConstructor>(new Class[]{String.class, int.class}, "", -1) {
         });
 
-        assertEquals(test, test1);
+        assertEquals(test, value);
     }
 
     @Test
@@ -133,8 +134,67 @@ public class AppCacheTest {
         fail();
     }
 
+    @Test
+    public void benchmarkAppcache100() {
+        benchmarkAppcache(100);
+    }
+
+    @Test
+    public void benchmarkAppcache1000() {
+        benchmarkAppcache(1000);
+    }
+
+    @Test
+    public void benchmarkAppcache10000() {
+        benchmarkAppcache(10000);
+    }
+
+    @Test
+    public void benchmarkAppcache100000() {
+        benchmarkAppcache(100000);
+    }
+
     @After
     public void tearDown() {
         AppCache.INSTANCE.removeAll();
+    }
+
+    private void benchmarkAppcache(int count) {
+        System.out.println(String.format("benchmarking with count: %d", count));
+
+        long startTime;
+        long endTime;
+        String value;
+
+        // test putting strings
+        startTime = System.currentTimeMillis();
+
+        for (int i = 0; i < count; i++) {
+            AppCache.INSTANCE.put(String.valueOf(i), "test");
+        }
+
+        endTime = System.currentTimeMillis();
+        System.out.println(String.format("put %d strings took %dms", count, endTime - startTime));
+
+        // test getting casted strings
+        startTime = System.currentTimeMillis();
+
+        for (int i = 0; i < count; i++) {
+            value = (String) AppCache.INSTANCE.get(String.valueOf(i));
+        }
+
+        endTime = System.currentTimeMillis();
+        System.out.println(String.format("get %d casted strings took %dms", count, endTime - startTime));
+
+        // test getting type referenced strings
+        startTime = System.currentTimeMillis();
+
+        for (int i = 0; i < count; i++) {
+            value = AppCache.INSTANCE.get(String.valueOf(i), AppCache.STRING_TYPE_REFERENCE);
+        }
+
+        endTime = System.currentTimeMillis();
+
+        System.out.println(String.format("get %d type referenced strings took %dms\n", count, endTime - startTime));
     }
 }
