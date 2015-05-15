@@ -3,8 +3,6 @@ package com.azsuth.commonmoduleproject;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -106,46 +104,29 @@ public class MainActivity extends Activity {
         public void onClick(View view) {
             switch (view.getId()) {
                 case R.id.time_and_date_button:
-                    VJRequest<TimeAndDate> timeAndDateRequest = new VJRequest<>(Request.Method.GET, "http://date.jsontest.com", new TypeReference<TimeAndDate>() {
-                    }, new Response.Listener<TimeAndDate>() {
+                    VJRequest.request(new TypeReference<TimeAndDate>() {})
+                            .from("http://date.jsontest.com")
+                            .withRequestMethod(Request.Method.GET)
+                            .success(new Response.Listener<TimeAndDate>() {
 
-                        @Override
-                        public void onResponse(TimeAndDate response) {
-                            AppCache.INSTANCE.put("test", response);
-                            Toast.makeText(MainActivity.this, String.format("Currently: %s %s", response.date, response.time), Toast.LENGTH_SHORT).show();
-                        }
+                                @Override
+                                public void onResponse(TimeAndDate response) {
+                                    Toast.makeText(MainActivity.this, String.format("Currently: %s %s", response.date, response.time), Toast.LENGTH_SHORT).show();
+                                }
 
-                    }, new Response.ErrorListener() {
+                            })
+                            .failure(new Response.ErrorListener() {
 
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Toast.makeText(MainActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    Toast.makeText(MainActivity.this, String.format("Error: %s", error.getMessage()), Toast.LENGTH_SHORT).show();
+                                }
 
-                    });
+                            }).execute(requestQueue);
 
-                    requestQueue.add(timeAndDateRequest);
                     break;
             }
         }
 
     };
-
-    private class TextWatcherAdapter implements TextWatcher {
-
-        @Override
-        public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
-            // override for functionality
-        }
-
-        @Override
-        public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-            // override for functionality
-        }
-
-        @Override
-        public void afterTextChanged(Editable editable) {
-            // override for functionality
-        }
-    }
 }
