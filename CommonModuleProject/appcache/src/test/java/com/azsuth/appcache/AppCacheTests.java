@@ -3,6 +3,8 @@ package com.azsuth.appcache;
 import org.junit.After;
 import org.junit.Test;
 
+import java.util.ArrayList;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -56,6 +58,25 @@ public class AppCacheTests {
         });
 
         assertEquals(test, value);
+    }
+
+    @Test
+    public void testParameterizedObject() {
+        ArrayList<String> test = new ArrayList<>();
+        test.add("Andrew");
+        test.add("Zachary");
+        test.add("Sutherland");
+
+        AppCache.INSTANCE.put("test", test);
+
+        ArrayList<String> value = AppCache.INSTANCE.get("test", new AppCache.TypeReference<ArrayList<String>>() {});
+
+        if (value != null) {
+            assertEquals(value.size(), 3);
+            assertEquals(value.get(1), "Zachary");
+        } else {
+            fail();
+        }
     }
 
     @Test
