@@ -1,6 +1,4 @@
-package com.azsuth.test;
-
-import com.azsuth.AppCache;
+package com.azsuth.appcache;
 
 import org.junit.After;
 import org.junit.Test;
@@ -13,7 +11,7 @@ import static org.junit.Assert.fail;
 /**
  * Created by andrewsutherland on 5/12/15.
  */
-public class AppCacheTest {
+public class AppCacheTests {
     @Test
     public void testHas() {
         AppCache.INSTANCE.put("test", "some_value");
