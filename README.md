@@ -32,7 +32,7 @@ This project contains several common Android "libraries" that can be imported in
 		- method: Request.Method.GET
 		- requestBody: null
 		- mapper: VJRequest.getDefaultMapper()
-		- retryPolicy: VJRequest.getRetryPolicy()
+		- retryPolicy: VJRequest.getDefaultRetryPolicy()
 		- successListener: empty
 	- RequestBuilder.build() will construct and return a VJRequest
 	- RequestBuilder.execute(RequestQueue requestQueue) will build the VJRequest and add it to the specified RequestQueue

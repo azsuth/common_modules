@@ -39,10 +39,10 @@ public class VJRequest<T> extends JsonRequest<T> {
      * requests that do not specify a custom policy will use the
      * configured default policy.
      *
-     * @param retryPolicy RetryPolicy to set as the default
+     * @param defualtRetryPolicy RetryPolicy to set as the default
      */
-    public static void setDefaultRetryPolicy(RetryPolicy retryPolicy) {
-        VJRequest.retryPolicy = retryPolicy;
+    public static void setDefaultRetryPolicy(RetryPolicy defualtRetryPolicy) {
+        VJRequest.retryPolicy = defualtRetryPolicy;
     }
 
     /**
@@ -146,7 +146,7 @@ public class VJRequest<T> extends JsonRequest<T> {
      * method - Request.Method.GET
      * requestBody - null
      * mapper - default ObjectMapper from VJRequest.getDefaultMapper()
-     * retryPolicy - default RetryPolicy from VJRequest.getRetryPolicy()
+     * retryPolicy - default RetryPolicy from VJRequest.getDefaultRetryPolicy()
      * successListener - empty listener
      *
      * @param <T> expected response type
