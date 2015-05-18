@@ -15,7 +15,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 import com.azsuth.appcache.AppCache;
-import com.azsuth.commonmoduleproject.model.TimeAndDate;
+import com.azsuth.commonmoduleproject.model.Test;
+import com.azsuth.commonmoduleproject.model.Tests;
 import com.azsuth.volleyjacksonrequest.VJRequest;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -23,6 +24,8 @@ import java.util.Random;
 
 
 public class MainActivity extends Activity {
+    private static final String BASE_URL = "http://mocksolstice.herokuapp.com/common_modules/common/play/";
+
     private static final String APP_CACHE_FIELD_KEY = "APP_CACHE_FIELD_KEY";
     private static final String APP_CACHE_INT_KEY = "APP_CACHE_INT_KEY";
 
@@ -50,7 +53,8 @@ public class MainActivity extends Activity {
 
         // init vjr
         requestQueue = Volley.newRequestQueue(this);
-        findViewById(R.id.time_and_date_button).setOnClickListener(vjrClickListener);
+        findViewById(R.id.simple_request_button).setOnClickListener(vjrClickListener);
+        findViewById(R.id.complex_request_button).setOnClickListener(vjrClickListener);
     }
 
     private void closeKeyboard() {
@@ -103,15 +107,14 @@ public class MainActivity extends Activity {
         @Override
         public void onClick(View view) {
             switch (view.getId()) {
-                case R.id.time_and_date_button:
-                    VJRequest.request(new TypeReference<TimeAndDate>() {})
-                            .from("http://date.jsontest.com")
-                            .withRequestMethod(Request.Method.GET)
-                            .success(new Response.Listener<TimeAndDate>() {
+                case R.id.simple_request_button:
+                    VJRequest.request(new TypeReference<Test>() {})
+                            .from(BASE_URL + "testbasic")
+                            .success(new Response.Listener<Test>() {
 
                                 @Override
-                                public void onResponse(TimeAndDate response) {
-                                    Toast.makeText(MainActivity.this, String.format("Currently: %s %s", response.date, response.time), Toast.LENGTH_SHORT).show();
+                                public void onResponse(Test response) {
+                                    Toast.makeText(MainActivity.this, String.format("Test values: %s, %d", response.test1, response.test2), Toast.LENGTH_SHORT).show();
                                 }
 
                             })
@@ -123,7 +126,34 @@ public class MainActivity extends Activity {
                                 }
 
                             }).execute(requestQueue);
+                    break;
+                case R.id.complex_request_button:
+                    VJRequest.request(new TypeReference<Tests>() {})
+                            .from(BASE_URL + "testcomplex")
+                            .withRequestMethod(Request.Method.POST)
+                            .success(new Response.Listener<Tests>() {
 
+                                @Override
+                                public void onResponse(Tests response) {
+                                    StringBuilder string = new StringBuilder();
+                                    string.append(String.format("%d results:", response.results));
+
+                                    for (Test test : response.tests) {
+                                        string.append(String.format("\ntest1: %s, test2: %d", test.test1, test.test2));
+                                    }
+
+                                    Toast.makeText(MainActivity.this, string.toString(), Toast.LENGTH_SHORT).show();
+                                }
+
+                            })
+                            .failure(new Response.ErrorListener() {
+
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    Toast.makeText(MainActivity.this, String.format("Error: %s", error.getMessage()), Toast.LENGTH_SHORT).show();
+                                }
+
+                            }).execute(requestQueue);
                     break;
             }
         }

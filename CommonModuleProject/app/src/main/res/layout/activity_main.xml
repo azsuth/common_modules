@@ -64,9 +64,17 @@
         android:textSize="20sp" />
 
     <Button
-        android:id="@+id/time_and_date_button"
+        android:id="@+id/simple_request_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/vjr_label"
-        android:text="Time &amp; Date" />
+        android:text="Simple" />
+
+    <Button
+        android:id="@+id/complex_request_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/vjr_label"
+        android:layout_alignParentRight="true"
+        android:text="Complex" />
 </RelativeLayout>
