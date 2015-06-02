@@ -47,6 +47,7 @@ AppCache.INSTANCE.removeAll();
 		- mapper: VJRequest.getDefaultMapper()
 		- retryPolicy: VJRequest.getDefaultRetryPolicy()
 		- successListener: empty
+		- headers: empty
 	- RequestBuilder.build() will construct and return a VJRequest
 	- RequestBuilder.execute(RequestQueue requestQueue) will build the VJRequest and add it to the specified RequestQueue
 - Usage:
