@@ -4,6 +4,7 @@ package com.azsuth.volleyjacksonrequest;
  * Created by andrewsutherland on 5/8/15.
  */
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
@@ -16,6 +17,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class VJRequest<T> extends JsonRequest<T> {
 
@@ -156,6 +160,7 @@ public class VJRequest<T> extends JsonRequest<T> {
         private String url;
         private TypeReference<T> responseType;
         private JSONObject requestBody;
+        private HashMap<String, String> headers;
         private ObjectMapper mapper;
         private RetryPolicy retryPolicy;
         private Response.Listener<T> successListener;
@@ -163,6 +168,8 @@ public class VJRequest<T> extends JsonRequest<T> {
 
         private RequestBuilder(TypeReference<T> responseType) {
             this.responseType = responseType;
+
+            headers = new HashMap<>();
         }
 
         public RequestBuilder<T> from(String url) {
@@ -177,6 +184,16 @@ public class VJRequest<T> extends JsonRequest<T> {
 
         public RequestBuilder<T> withRequestBody(JSONObject requestBody) {
             this.requestBody = requestBody;
+            return this;
+        }
+
+        public RequestBuilder<T> withHeader(String headerKey, String headerValue) {
+            headers.put(headerKey, headerValue);
+            return this;
+        }
+
+        public RequestBuilder<T> withHeaders(Map<String, String> headers) {
+            this.headers.putAll(headers);
             return this;
         }
 
@@ -207,7 +224,7 @@ public class VJRequest<T> extends JsonRequest<T> {
          *
          * @return a VJRequest
          */
-        public VJRequest build() {
+        public VJRequest<T> build() {
             if (url == null) {
                 throw new IllegalArgumentException("Url is required to build a request...duh");
             }
@@ -239,7 +256,17 @@ public class VJRequest<T> extends JsonRequest<T> {
                 retryPolicy = getDefaultRetryPolicy();
             }
 
-            return new VJRequest<>(method, url, requestBody, responseType, mapper, retryPolicy, successListener, errorListener);
+            return new VJRequest<T>(method, url, requestBody, responseType, mapper, retryPolicy, successListener, errorListener) {
+
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> headers = super.getHeaders();
+                    headers.putAll(RequestBuilder.this.headers);
+
+                    return headers;
+                }
+
+            };
         }
 
         /**
