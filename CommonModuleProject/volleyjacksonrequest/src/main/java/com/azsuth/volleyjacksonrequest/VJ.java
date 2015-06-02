@@ -21,7 +21,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class VJRequest<T> extends JsonRequest<T> {
+public class VJ<T> extends JsonRequest<T> {
 
     /**
      * Set a default mapper for all jackson mapping.
@@ -33,7 +33,7 @@ public class VJRequest<T> extends JsonRequest<T> {
      * @param defaultMapper ObjectMapper to set as the default
      */
     public static void setDefaultObjectMapper(ObjectMapper defaultMapper) {
-        VJRequest.defaultMapper = defaultMapper;
+        VJ.defaultMapper = defaultMapper;
     }
 
     /**
@@ -46,7 +46,7 @@ public class VJRequest<T> extends JsonRequest<T> {
      * @param defualtRetryPolicy RetryPolicy to set as the default
      */
     public static void setDefaultRetryPolicy(RetryPolicy defualtRetryPolicy) {
-        VJRequest.retryPolicy = defualtRetryPolicy;
+        VJ.retryPolicy = defualtRetryPolicy;
     }
 
     /**
@@ -105,7 +105,7 @@ public class VJRequest<T> extends JsonRequest<T> {
      * @param successListener Response.Listener<T> to be called on successful network request and object mapping
      * @param errorListener Response.ErrorListener to be called on network error or object mapping error
      */
-    private VJRequest(int method, String url, JSONObject requestBody, TypeReference<T> responseType, ObjectMapper mapper, RetryPolicy retryPolicy, Response.Listener<T> successListener, Response.ErrorListener errorListener) {
+    private VJ(int method, String url, JSONObject requestBody, TypeReference<T> responseType, ObjectMapper mapper, RetryPolicy retryPolicy, Response.Listener<T> successListener, Response.ErrorListener errorListener) {
         super(method, url, (requestBody == null ? null : requestBody.toString()), successListener, errorListener);
 
         this.responseType = responseType;
@@ -207,12 +207,12 @@ public class VJRequest<T> extends JsonRequest<T> {
             return this;
         }
 
-        public RequestBuilder<T> success(Response.Listener<T> successListener) {
+        public RequestBuilder<T> withSuccess(Response.Listener<T> successListener) {
             this.successListener = successListener;
             return this;
         }
 
-        public RequestBuilder<T> failure(Response.ErrorListener errorListener) {
+        public RequestBuilder<T> withFailure(Response.ErrorListener errorListener) {
             this.errorListener = errorListener;
             return this;
         }
@@ -224,7 +224,7 @@ public class VJRequest<T> extends JsonRequest<T> {
          *
          * @return a VJRequest
          */
-        public VJRequest<T> build() {
+        public VJ<T> build() {
             if (url == null) {
                 throw new IllegalArgumentException("Url is required to build a request...duh");
             }
@@ -256,7 +256,7 @@ public class VJRequest<T> extends JsonRequest<T> {
                 retryPolicy = getDefaultRetryPolicy();
             }
 
-            return new VJRequest<T>(method, url, requestBody, responseType, mapper, retryPolicy, successListener, errorListener) {
+            return new VJ<T>(method, url, requestBody, responseType, mapper, retryPolicy, successListener, errorListener) {
 
                 @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {

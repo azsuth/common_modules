@@ -17,7 +17,7 @@ import com.android.volley.toolbox.Volley;
 import com.azsuth.appcache.AppCache;
 import com.azsuth.commonmoduleproject.model.Test;
 import com.azsuth.commonmoduleproject.model.Tests;
-import com.azsuth.volleyjacksonrequest.VJRequest;
+import com.azsuth.volleyjacksonrequest.VJ;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.util.Random;
@@ -108,9 +108,9 @@ public class MainActivity extends Activity {
         public void onClick(View view) {
             switch (view.getId()) {
                 case R.id.simple_request_button:
-                    VJRequest.request(new TypeReference<Test>() {})
+                    VJ.request(new TypeReference<Test>() {})
                             .from(BASE_URL + "testbasic")
-                            .success(new Response.Listener<Test>() {
+                            .withSuccess(new Response.Listener<Test>() {
 
                                 @Override
                                 public void onResponse(Test response) {
@@ -118,7 +118,7 @@ public class MainActivity extends Activity {
                                 }
 
                             })
-                            .failure(new Response.ErrorListener() {
+                            .withFailure(new Response.ErrorListener() {
 
                                 @Override
                                 public void onErrorResponse(VolleyError error) {
@@ -128,10 +128,10 @@ public class MainActivity extends Activity {
                             }).execute(requestQueue);
                     break;
                 case R.id.complex_request_button:
-                    VJRequest.request(new TypeReference<Tests>() {})
+                    VJ.request(new TypeReference<Tests>() {})
                             .from(BASE_URL + "testcomplex")
                             .withRequestMethod(Request.Method.POST)
-                            .success(new Response.Listener<Tests>() {
+                            .withSuccess(new Response.Listener<Tests>() {
 
                                 @Override
                                 public void onResponse(Tests response) {
@@ -146,7 +146,7 @@ public class MainActivity extends Activity {
                                 }
 
                             })
-                            .failure(new Response.ErrorListener() {
+                            .withFailure(new Response.ErrorListener() {
 
                                 @Override
                                 public void onErrorResponse(VolleyError error) {
