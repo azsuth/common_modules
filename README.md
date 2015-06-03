@@ -38,11 +38,10 @@ AppCache.INSTANCE.removeAll();
 - Wrapper for Volley and Jackson
 - Set global default ObjectMapper with setDefaultObjectMapper(ObjectMapper defaultMapper)
 - Set global default RetryPolicy with setDefaultRetryPolicy(RetryPolicy retryPolicy)
-- Start a request with static VJRequest.request(TypeReference<T> responseType)
-	- Returns a RequestBuilder<T>
-	- from(String url) and failure(Response.ErrorListener errorListener) are required
+- Start a request with static VJRequest.request, VJRequest.get or VJRequest.post
+	- Returns a RequestBuilder<T> or an intermidiate class to guide necessary parameters
+	- request method, url, error listener and response type are required
 	- defaults for unset options:
-		- method: Request.Method.GET
 		- requestBody: null
 		- mapper: VJRequest.getDefaultMapper()
 		- retryPolicy: VJRequest.getDefaultRetryPolicy()
@@ -53,7 +52,7 @@ AppCache.INSTANCE.removeAll();
 - Usage:
 
 ```java
-VJRequest.request(new TypeReference<MyDate>() {})
+VJRequest.get(new TypeReference<MyDate>() {})
 	.from(MY_DATE_JSON_ENDPOINT)
 	.success(new Response.Listener<MyDate>() {
 		
