@@ -16,12 +16,10 @@ import com.android.volley.toolbox.JsonRequest;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.json.JSONObject;
-
 import java.util.HashMap;
 import java.util.Map;
 
-public class VJ<T> extends JsonRequest<T> {
+public class VJRequest<T> extends JsonRequest<T> {
 
     /**
      * Set a default mapper for all jackson mapping.
@@ -33,7 +31,7 @@ public class VJ<T> extends JsonRequest<T> {
      * @param defaultMapper ObjectMapper to set as the default
      */
     public static void setDefaultObjectMapper(ObjectMapper defaultMapper) {
-        VJ.defaultMapper = defaultMapper;
+        VJRequest.defaultMapper = defaultMapper;
     }
 
     /**
@@ -46,7 +44,7 @@ public class VJ<T> extends JsonRequest<T> {
      * @param defualtRetryPolicy RetryPolicy to set as the default
      */
     public static void setDefaultRetryPolicy(RetryPolicy defualtRetryPolicy) {
-        VJ.retryPolicy = defualtRetryPolicy;
+        VJRequest.retryPolicy = defualtRetryPolicy;
     }
 
     /**
@@ -105,8 +103,8 @@ public class VJ<T> extends JsonRequest<T> {
      * @param successListener Response.Listener<T> to be called on successful network request and object mapping
      * @param errorListener Response.ErrorListener to be called on network error or object mapping error
      */
-    private VJ(int method, String url, JSONObject requestBody, TypeReference<T> responseType, ObjectMapper mapper, RetryPolicy retryPolicy, Response.Listener<T> successListener, Response.ErrorListener errorListener) {
-        super(method, url, (requestBody == null ? null : requestBody.toString()), successListener, errorListener);
+    private VJRequest(int method, String url, String requestBody, TypeReference<T> responseType, ObjectMapper mapper, RetryPolicy retryPolicy, Response.Listener<T> successListener, Response.ErrorListener errorListener) {
+        super(method, url, requestBody == null ? null : requestBody, successListener, errorListener);
 
         this.responseType = responseType;
         this.mapper = mapper;
@@ -128,15 +126,35 @@ public class VJ<T> extends JsonRequest<T> {
     }
 
     /**
+     * Starts a GET request.
+     *
+     * @param responseType
+     * @param <T>
+     * @return
+     */
+    public static <T> RequestBuilder.GetRequestBuilder<T> get(TypeReference<T> responseType) {
+        return new RequestBuilder.GetRequestBuilder<>(responseType);
+    }
+
+    /**
+     * Starts a POST request.
+     *
+     * @param requestBody
+     * @return
+     */
+    public static RequestBuilder.PostRequestBuilder post(String requestBody) {
+        return new RequestBuilder.PostRequestBuilder(requestBody);
+    }
+
+    /**
      * Starts a request.
      *
-     * @param responseType wrapper for the expected response type
-     * @param <T> expected response type
+     * @param <T>
      *
-     * @return a RequestBuilder to configure request options
+     * @return a RequestBuilder with only response type configured
      */
-    public static <T> RequestBuilder<T> request(TypeReference<T> responseType) {
-        return new RequestBuilder<>(responseType);
+    public static <T> RequestBuilder<T> request() {
+        return new RequestBuilder<>();
     }
 
     /**
@@ -156,23 +174,21 @@ public class VJ<T> extends JsonRequest<T> {
      * @param <T> expected response type
      */
     public static class RequestBuilder<T> {
-        private Integer method;
-        private String url;
-        private TypeReference<T> responseType;
-        private JSONObject requestBody;
-        private HashMap<String, String> headers;
-        private ObjectMapper mapper;
-        private RetryPolicy retryPolicy;
-        private Response.Listener<T> successListener;
-        private Response.ErrorListener errorListener;
+        protected String url;
+        protected Integer method;
+        protected TypeReference<T> responseType;
+        protected String requestBody;
+        protected HashMap<String, String> headers;
+        protected ObjectMapper mapper;
+        protected RetryPolicy retryPolicy;
+        protected Response.Listener<T> successListener;
+        protected Response.ErrorListener errorListener;
 
-        private RequestBuilder(TypeReference<T> responseType) {
-            this.responseType = responseType;
-
+        private RequestBuilder() {
             headers = new HashMap<>();
         }
 
-        public RequestBuilder<T> from(String url) {
+        public RequestBuilder<T> withUrl(String url) {
             this.url = url;
             return this;
         }
@@ -182,7 +198,12 @@ public class VJ<T> extends JsonRequest<T> {
             return this;
         }
 
-        public RequestBuilder<T> withRequestBody(JSONObject requestBody) {
+        public RequestBuilder<T> withResponseType(TypeReference<T> responseType) {
+            this.responseType = responseType;
+            return this;
+        }
+
+        public RequestBuilder<T> withRequestBody(String requestBody) {
             this.requestBody = requestBody;
             return this;
         }
@@ -207,12 +228,12 @@ public class VJ<T> extends JsonRequest<T> {
             return this;
         }
 
-        public RequestBuilder<T> withSuccess(Response.Listener<T> successListener) {
+        public RequestBuilder<T> onSuccess(Response.Listener<T> successListener) {
             this.successListener = successListener;
             return this;
         }
 
-        public RequestBuilder<T> withFailure(Response.ErrorListener errorListener) {
+        public RequestBuilder<T> onFailure(Response.ErrorListener errorListener) {
             this.errorListener = errorListener;
             return this;
         }
@@ -224,17 +245,21 @@ public class VJ<T> extends JsonRequest<T> {
          *
          * @return a VJRequest
          */
-        public VJ<T> build() {
+        public VJRequest<T> build() {
             if (url == null) {
                 throw new IllegalArgumentException("Url is required to build a request...duh");
             }
 
-            if (errorListener == null) {
-                throw new IllegalArgumentException("Error listener is required to build a request");
+            if (method == null) {
+                throw new IllegalArgumentException("Request method is required to build a request");
             }
 
-            if (method == null) {
-                method = Method.GET;
+            if (responseType == null) {
+                throw new IllegalArgumentException("Response type is required to build a request");
+            }
+
+            if (errorListener == null) {
+                throw new IllegalArgumentException("Error listener is required to build a request");
             }
 
             if (successListener == null) {
@@ -256,11 +281,11 @@ public class VJ<T> extends JsonRequest<T> {
                 retryPolicy = getDefaultRetryPolicy();
             }
 
-            return new VJ<T>(method, url, requestBody, responseType, mapper, retryPolicy, successListener, errorListener) {
+            return new VJRequest<T>(method, url, requestBody, responseType, mapper, retryPolicy, successListener, errorListener) {
 
                 @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String> headers = super.getHeaders();
+                    HashMap<String, String> headers = new HashMap<>();
                     headers.putAll(RequestBuilder.this.headers);
 
                     return headers;
@@ -276,6 +301,73 @@ public class VJ<T> extends JsonRequest<T> {
          */
         public void execute(RequestQueue requestQueue) {
             requestQueue.add(build());
+        }
+
+        /**
+         * Convenience class for building a GET request.
+         *
+         * Guarantees resulting RequestBuilder will have
+         * a response type and url.
+         *
+         * @param <T> expected response type
+         */
+        public static class GetRequestBuilder<T> {
+            private TypeReference<T> responseType;
+
+            public GetRequestBuilder(TypeReference<T> responseType) {
+                this.responseType = responseType;
+            }
+
+            public RequestBuilder<T> from(String url) {
+                RequestBuilder<T> requestBuilder = new RequestBuilder<>();
+                requestBuilder.responseType = responseType;
+                requestBuilder.method = Method.GET;
+                requestBuilder.url = url;
+
+                return requestBuilder;
+            }
+        }
+
+        /**
+         * Convenience class for building a POST request.
+         *
+         * Guarantees resulting RequestBuilder will have
+         * a request body, url and response type.
+         */
+        public static class PostRequestBuilder {
+            private String requestBody;
+
+            public PostRequestBuilder(String requestBody) {
+                this.requestBody = requestBody;
+            }
+
+            public PostResponseTypeRequestBuilder to(String url) {
+                return new PostResponseTypeRequestBuilder(requestBody, url);
+            }
+
+            /**
+             * Guarantees resulting RequestBuilder will have
+             * a response type.
+             */
+            public static class PostResponseTypeRequestBuilder {
+                private String requestBody;
+                private String url;
+
+                public PostResponseTypeRequestBuilder(String requestBody, String url) {
+                    this.requestBody = requestBody;
+                    this.url = url;
+                }
+
+                public <T> RequestBuilder<T> withResponseType(TypeReference<T> responseType) {
+                    RequestBuilder<T> requestBuilder = new RequestBuilder<>();
+                    requestBuilder.responseType = responseType;
+                    requestBuilder.method = Method.POST;
+                    requestBuilder.url = url;
+                    requestBuilder.requestBody = requestBody;
+
+                    return requestBuilder;
+                }
+            }
         }
     }
 }

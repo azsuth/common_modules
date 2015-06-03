@@ -9,7 +9,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -17,7 +16,7 @@ import com.android.volley.toolbox.Volley;
 import com.azsuth.appcache.AppCache;
 import com.azsuth.commonmoduleproject.model.Test;
 import com.azsuth.commonmoduleproject.model.Tests;
-import com.azsuth.volleyjacksonrequest.VJ;
+import com.azsuth.volleyjacksonrequest.VJRequest;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.util.Random;
@@ -108,9 +107,9 @@ public class MainActivity extends Activity {
         public void onClick(View view) {
             switch (view.getId()) {
                 case R.id.simple_request_button:
-                    VJ.request(new TypeReference<Test>() {})
+                    VJRequest.get(new TypeReference<Test>() {})
                             .from(BASE_URL + "testbasic")
-                            .withSuccess(new Response.Listener<Test>() {
+                            .onSuccess(new Response.Listener<Test>() {
 
                                 @Override
                                 public void onResponse(Test response) {
@@ -118,7 +117,7 @@ public class MainActivity extends Activity {
                                 }
 
                             })
-                            .withFailure(new Response.ErrorListener() {
+                            .onFailure(new Response.ErrorListener() {
 
                                 @Override
                                 public void onErrorResponse(VolleyError error) {
@@ -128,10 +127,10 @@ public class MainActivity extends Activity {
                             }).execute(requestQueue);
                     break;
                 case R.id.complex_request_button:
-                    VJ.request(new TypeReference<Tests>() {})
-                            .from(BASE_URL + "testcomplex")
-                            .withRequestMethod(Request.Method.POST)
-                            .withSuccess(new Response.Listener<Tests>() {
+                    VJRequest.post("request_body")
+                            .to(BASE_URL + "testcomplex")
+                            .withResponseType(new TypeReference<Tests>() {})
+                            .onSuccess(new Response.Listener<Tests>() {
 
                                 @Override
                                 public void onResponse(Tests response) {
@@ -146,7 +145,7 @@ public class MainActivity extends Activity {
                                 }
 
                             })
-                            .withFailure(new Response.ErrorListener() {
+                            .onFailure(new Response.ErrorListener() {
 
                                 @Override
                                 public void onErrorResponse(VolleyError error) {
